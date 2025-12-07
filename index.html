@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz: Łuczniczka - Bydgoszcz City Guide</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+        :root {
+            /* Bydgoszcz Brand Colors */
+            --brand-red: #E30613;
+            /* Intense Red */
+            --brand-blue: #005CA9;
+            /* Deep Blue */
+            --brand-yellow: #FFCB05;
+            /* Sunny Yellow */
+            --primary: var(--brand-blue);
+            --secondary: var(--brand-red);
+            --accent: var(--brand-yellow);
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-main: #2d3436;
+            --text-light: #636e72;
+            --success: #00b894;
+            --error: #d63031;
+            --border-color: #dfe6e9;
+        }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #e3f2fd 0%, #fdfbf7 100%);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+        }
+        .quiz-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .quiz-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, var(--brand-blue) 0%, var(--brand-yellow) 50%, var(--brand-red) 100%);
+        }
+        h1 {
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+            background: linear-gradient(45deg, var(--text-main), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .question {
+            margin-bottom: 30px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.5s ease forwards;
+        }
+        .question:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+        .question:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+        .question:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+        .question h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--text-main);
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            background: white;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .option-label:hover {
+            border-color: var(--secondary);
+            background-color: rgba(108, 99, 255, 0.05);
+        }
+        .option-label input[type="radio"] {
+            margin-right: 12px;
+            accent-color: var(--secondary);
+            transform: scale(1.2);
+        }
+        .btn-submit {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(45deg, var(--secondary), var(--primary));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 20px;
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 99, 255, 0.3);
+        }
+        .result-message {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+        .result-message.success {
+            background-color: rgba(0, 184, 148, 0.15);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+        .result-message.partial {
+            background-color: rgba(253, 203, 110, 0.15);
+            color: #d35400;
+            border: 1px solid #d35400;
+        }
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        .back-link:hover {
+            color: var(--secondary);
+        }
+        .puzzle-reward {
+            display: none; /* Hidden by default */
+            margin-top: 20px;
+            text-align: center;
+        }
+        .puzzle-container {
+            display: inline-flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+        .puzzle-piece {
+            width: 100px;
+            height: 100px;
+            background-image: url('https://img.freepik.com/darmowe-wektory/trofeum_78370-345.jpg?semt=ais_hybrid&w=740&q=80');
+            background-size: 200px 200px; /* Assuming 2x2 grid for simplicity */
+            border: 2px solid var(--brand-yellow);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        
+        /* Piece 1: Top-Left */
+        .piece-1 {
+            background-position: 0 0;
+        }
+        
+        /* Piece 2: Bottom-Right */
+        .piece-2 {
+            background-position: 100% 100%;
+        }
+        .puzzle-caption {
+            font-size: 0.9rem;
+            color: var(--brand-blue);
+            margin-top: 10px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="quiz-card">
+            <h1>Rzeźba 1: Łuczniczka</h1>
+            <form id="quizForm">
+                <!-- Pytanie 1 -->
+                <div class="question">
+                    <h3>1. W którą stronę celuje Łuczniczka?</h3>
+                    <div class="options">
+                        <label class="option-label"><input type="radio" name="q1" value="polnoc"> północ</label>
+                        <label class="option-label"><input type="radio" name="q1" value="poludnie"> południe</label>
+                        <label class="option-label"><input type="radio" name="q1" value="wschod"> wschód</label>
+                        <label class="option-label"><input type="radio" name="q1" value="zachod"> zachód</label>
+                    </div>
+                </div>
+                <!-- Pytanie 2 -->
+                <div class="question">
+                    <h3>2. Co unosi wyżej: łuk czy ramię?</h3>
+                    <div class="options">
+                        <label class="option-label"><input type="radio" name="q2" value="luk"> łuk</label>
+                        <label class="option-label"><input type="radio" name="q2" value="ramie"> ramię</label>
+                    </div>
+                </div>
+                <!-- Pytanie 3 -->
+                <div class="question">
+                    <h3>3. Co według Ciebie symbolizuje poza Łuczniczki?</h3>
+                    <div class="options">
+                        <label class="option-label"><input type="radio" name="q3" value="sila"> siłę i pewność</label>
+                        <label class="option-label"><input type="radio" name="q3" value="spokoj"> spokój i
+                            równowagę</label>
+                        <label class="option-label"><input type="radio" name="q3" value="strach"> strach</label>
+                        <label class="option-label"><input type="radio" name="q3" value="taniec"> taniec</label>
+                    </div>
+                </div>
+                <button type="button" class="btn-submit" onclick="checkAnswers()">Sprawdź odpowiedzi</button>
+                <div id="result" class="result-message"></div>
+                
+                <!-- Puzzle Reward Container -->
+                <div id="puzzleReward" class="puzzle-reward">
+                    <p>Brawo! Zdobywasz 2 elementy układanki:</p>
+                    <div class="puzzle-container">
+                        <div class="puzzle-piece piece-1"></div>
+                        <div class="puzzle-piece piece-2"></div>
+                    </div>
+                    <p class="puzzle-caption">Zbierz pozostałe przy kolejnych rzeźbach!</p>
+                </div>
+            </form>
+        </div>
+        <a href="index.html" class="back-link">← Powrót do mapy</a>
+    </div>
+    <script>
+        function checkAnswers() {
+            const form = document.getElementById('quizForm');
+            const resultDiv = document.getElementById('result');
+            const puzzleReward = document.getElementById('puzzleReward');
+            let q1 = form.q1.value;
+            let q2 = form.q2.value;
+            let q3 = form.q3.value;
+            if (!q1 || !q2 || !q3) {
+                resultDiv.textContent = "Proszę zaznaczyć wszystkie odpowiedzi!";
+                resultDiv.className = "result-message partial";
+                resultDiv.style.display = "block";
+                puzzleReward.style.display = "none";
+                return;
+            }
+            // Validation logic
+            // Pytanie 3 is the critical one requiring 'sila'
+            let feedback = "";
+            let isSuccess = false;
+            if (q3 === 'sila') {
+                feedback = "Świetnie! Prawidłowa odpowiedź to siła i dynamika.";
+                isSuccess = true;
+            } else {
+                feedback = "Niestety, to nie jest poprawna odpowiedź. Spróbuj ponownie.";
+                isSuccess = false;
+            }
+            resultDiv.textContent = feedback;
+            resultDiv.className = isSuccess ? "result-message success" : "result-message partial";
+            resultDiv.style.display = "block";
+            
+            if (isSuccess) {
+                puzzleReward.style.display = "block";
+            } else {
+                puzzleReward.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
